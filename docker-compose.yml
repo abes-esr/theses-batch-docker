@@ -9,7 +9,8 @@ services:
   theses-batch:
     build: .
     container_name: theses-batch
-    image: abesesr/theses-batch:${THESES_BATCH_VERSION}
+    image: theses-batch
+#    image: abesesr/theses-batch:${THESES_BATCH_VERSION}
     restart: ${RESTART_POLICY}
     mem_limit: ${MEM_LIMIT}
     memswap_limit: ${MEM_LIMIT}
@@ -46,7 +47,6 @@ services:
       THESES_BATCH_SOLR_READ_TIMEOUT: ${THESES_BATCH_SOLR_READ_TIMEOUT}
   #    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
   #    JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS}
-  #    IAR_BATCH_AT_STARTUP: ${IAR_BATCH_AT_STARTUP}
     labels:
       # pour envoyer les logs dans le puits de log de l'abes
       - "co.elastic.logs/enabled=true"
