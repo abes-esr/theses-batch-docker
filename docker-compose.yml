@@ -9,8 +9,7 @@ services:
   theses-batch:
     build: .
     container_name: theses-batch
-    image: theses-batch
-#    image: abesesr/theses-batch:${THESES_BATCH_VERSION}
+    image: abesesr/theses:${THESES_BATCH_VERSION}
     restart: ${RESTART_POLICY}
     mem_limit: ${MEM_LIMIT}
     memswap_limit: ${MEM_LIMIT}
@@ -23,7 +22,6 @@ services:
         source: ${THESES_BATCH_ANR_OUTPUT_DIR}
         target: /output
     environment:
-#      SPRING_CONFIG_LOCATION=/scripts/application.yml
       THESES_BATCH_VERSION: ${THESES_BATCH_VERSION}
 
       THESES_BATCH_ANR_PATTERN: ${THESES_BATCH_ANR_PATTERN}
@@ -36,6 +34,7 @@ services:
       THESES_BATCH_ANR_WRITERS_ENABLED: ${THESES_BATCH_ANR_WRITERS_ENABLED}
       THESES_BATCH_ANR_WRITERS_HEADER: ${THESES_BATCH_ANR_WRITERS_HEADER}
       THESES_BATCH_ANR_JSON_PRETTY_PRINT: ${THESES_BATCH_ANR_JSON_PRETTY_PRINT}
+      THESES_BATCH_ANR_FONTS_DIR: ${THESES_BATCH_ANR_FONTS_DIR}
 
       THESES_BATCH_SOLR_ENABLED: ${THESES_BATCH_SOLR_ENABLED}
       THESES_BATCH_SOLR_BASE_URL: ${THESES_BATCH_SOLR_BASE_URL}
