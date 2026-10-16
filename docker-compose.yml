@@ -21,6 +21,9 @@ services:
       - type: bind
         source: ${THESES_BATCH_ANR_OUTPUT_DIR}
         target: /output
+      - type: bind
+        source: ${THESES_BATCH_DATA_H2}
+        target: /data
     environment:
       THESES_BATCH_VERSION: ${THESES_BATCH_VERSION}
 
