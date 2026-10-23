@@ -1,3 +1,23 @@
+volumes
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.bin/
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Environment
+.env
+
 # Compiled class file
 *.class
 
