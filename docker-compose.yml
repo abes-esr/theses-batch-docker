@@ -24,6 +24,9 @@ services:
       - type: bind
         source: ${THESES_BATCH_DATA_H2}
         target: /data
+      - type: bind
+        source: ${THESES_BATCH_ANR_INPUT_FONTS_DIR}
+        target: /fonts
     environment:
       THESES_BATCH_VERSION: ${THESES_BATCH_VERSION}
 
