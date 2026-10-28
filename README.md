@@ -4,7 +4,7 @@ Configuration Docker Compose pour déployer les batchs de l'application **theses
 1. **`theses-batch-anr`** : Extraction et enrichissement Solr des financements ANR dans les thèses PDF.
 2. **`theses-batch-datagouv`** : Export semestriel et téléversement des thèses soutenues vers data.gouv.fr (formats CSV, JSON, JSONL, JSONL.gz).
 
-Les deux conteneurs s'appuient sur la **même image Docker** (`abesesr/theses:latest`), tournent en permanence pour être supervisés par **WUD**, et partagent le **même fichier `.env`**.
+Les deux conteneurs s'appuient sur la **même image Docker** (`abesesr/theses-batch:latest`), tournent en permanence pour être supervisés par **WUD**, et partagent le **même fichier `.env`**.
 
 ---
 

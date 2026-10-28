@@ -10,7 +10,7 @@ services:
   # Reste actif en permanence pour supervision WUD et prêt pour ./scripts/run-anr.sh
   # ===================================================================
   theses-batch-anr:
-    image: ${THESES_BATCH_IMAGE:-abesesr/theses}:${THESES_BATCH_VERSION:-latest}
+    image: ${THESES_BATCH_IMAGE:-abesesr/theses-batch}:${THESES_BATCH_VERSION:-latest}
     container_name: ${CONTAINER_NAME_ANR:-theses-batch-anr}
     entrypoint: ["/docker-entrypoint-anr.sh"]
     restart: ${RESTART_POLICY:-unless-stopped}
@@ -85,7 +85,7 @@ services:
   # Reste actif en permanence avec cronie pour supervision WUD et prêt pour ./scripts/run-datagouv.sh
   # ===================================================================
   theses-batch-datagouv:
-    image: ${THESES_BATCH_IMAGE:-abesesr/theses}:${THESES_BATCH_VERSION:-latest}
+    image: ${THESES_BATCH_IMAGE:-abesesr/theses-batch}:${THESES_BATCH_VERSION:-latest}
     container_name: ${CONTAINER_NAME_DATAGOUV:-theses-batch-datagouv}
     entrypoint: ["/docker-entrypoint-datagouv.sh"]
     restart: ${RESTART_POLICY:-unless-stopped}
