@@ -1,68 +1,173 @@
 #
-# Ci-dessous la config qui permet de lancer thes-batch
+# theses-batch-docker : Déploiement multi-conteneurs des batchs thèses (ANR & Datagouv)
 #
-# Remarque: avant de lancer docker-compose up, il faut régler le fichier .env
-# en partant du fichier .env-dist qui donne les variables d'environnements
-# à personnaliser et des exemples de valeurs.
+# Remarque : avant de lancer docker-compose up, personnalisez le fichier .env
+# en partant du fichier .env-dist qui détaille toutes les variables d'environnement.
 #
 services:
-  theses-batch:
-    build: .
-    container_name: theses-batch
-    image: abesesr/theses:${THESES_BATCH_VERSION}
-    restart: ${RESTART_POLICY}
-    mem_limit: ${MEM_LIMIT}
-    memswap_limit: ${MEM_LIMIT}
-    cpus: ${CPU_LIMIT}
+  # ===================================================================
+  # Conteneur 1 : Batch ANR (Extraction et enrichissement Solr des PDF)
+  # Reste actif en permanence pour supervision WUD et prêt pour ./scripts/run-anr.sh
+  # ===================================================================
+  theses-batch-anr:
+    image: ${THESES_BATCH_IMAGE:-abesesr/theses-batch}:${THESES_BATCH_VERSION:-latest}
+    container_name: ${CONTAINER_NAME_ANR:-theses-batch-anr}
+    entrypoint: ["/docker-entrypoint-anr.sh"]
+    restart: ${RESTART_POLICY:-unless-stopped}
+    mem_limit: ${MEM_LIMIT_ANR:-16g}
+    memswap_limit: ${MEMSWAP_LIMIT_ANR:-16g}
+    cpus: ${CPU_LIMIT_ANR:-16}
     volumes:
       - type: bind
-        source: ${THESES_BATCH_ANR_INPUT_DIR}
+        source: ${THESES_BATCH_ANR_INPUT_DIR:-/starstock}
         target: /input
       - type: bind
-        source: ${THESES_BATCH_ANR_OUTPUT_DIR}
+        source: ${THESES_BATCH_ANR_OUTPUT_DIR:-volumes/output-anr}
         target: /output
       - type: bind
-        source: ${THESES_BATCH_DATA_H2}
+        source: ${THESES_BATCH_DATA_H2_ANR:-volumes/data-anr}
         target: /data
       - type: bind
-        source: ${THESES_BATCH_ANR_INPUT_FONTS_DIR}
+        source: ${THESES_BATCH_ANR_INPUT_FONTS_DIR:-volumes/fonts}
         target: /fonts
     environment:
-      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION}
+      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION:-latest}
+      THESES_BATCH_JAVA_XMX: ${THESES_BATCH_JAVA_XMX_ANR:-14g}
+      THESES_BATCH_HEAP_DUMP_DIR: ${THESES_BATCH_HEAP_DUMP_DIR:-/output}
+      THESES_BATCH_JAVA_OPTS: ${THESES_BATCH_JAVA_OPTS:-}
 
-      THESES_BATCH_ANR_PATTERN: ${THESES_BATCH_ANR_PATTERN}
-      THESES_BATCH_ANR_MAX_FILES: ${THESES_BATCH_ANR_MAX_FILES}
-      THESES_BATCH_ANR_OFFSET: ${THESES_BATCH_ANR_OFFSET}
-      THESES_BATCH_ANR_NB_PAGES: ${THESES_BATCH_ANR_NB_PAGES}
-      THESES_BATCH_ANR_CONTEXT_CHARACTERS: ${THESES_BATCH_ANR_CONTEXT_CHARACTERS}
-      THESES_BATCH_ANR_CHUNK_SIZE: ${THESES_BATCH_ANR_CHUNK_SIZE}
-      THESES_BATCH_ANR_EXCLUDE_KEYWORDS: ${THESES_BATCH_ANR_EXCLUDE_KEYWORDS}
-      THESES_BATCH_ANR_WRITERS_ENABLED: ${THESES_BATCH_ANR_WRITERS_ENABLED}
-      THESES_BATCH_ANR_WRITERS_HEADER: ${THESES_BATCH_ANR_WRITERS_HEADER}
-      THESES_BATCH_ANR_JSON_PRETTY_PRINT: ${THESES_BATCH_ANR_JSON_PRETTY_PRINT}
-      THESES_BATCH_ANR_FONTS_DIR: ${THESES_BATCH_ANR_FONTS_DIR}
-      THESES_BATCH_ANR_START_FILE: ${THESES_BATCH_ANR_START_FILE}
-      THESES_BATCH_ANR_SCAN_THREADS: ${THESES_BATCH_ANR_SCAN_THREADS}
-      THESES_BATCH_ANR_PROCESS_THREADS: ${THESES_BATCH_ANR_PROCESS_THREADS}
-      THESES_BATCH_ANR_EXCLUDE_DIRS: ${THESES_BATCH_ANR_EXCLUDE_DIRS}
-      THESES_BATCH_ANR_PROGRESS_INTERVAL: ${THESES_BATCH_ANR_PROGRESS_INTERVAL}
-      THESES_BATCH_ANR_IN_MEMORY_MAX_SIZE: ${THESES_BATCH_ANR_IN_MEMORY_MAX_SIZE}
+      #####################
+      ### OpenTelemetry ###
+      #####################
+      # Activation de l'agent Java (true pour l'activer)
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      # Nom du Container (équivalent à container name)
+      OTEL_SERVICE_NAME: "theses-batch-anr"
+      # Environnement (dev, test, prod)
+      OTEL_ENVIRONMENT: "${OTEL_ENVIRONMENT:-local}"
+      # Namespace (équivalent au nom de l'application, commun aux différents conteneurs de l'application)
+      OTEL_NAMESPACE: "${OTEL_NAMESPACE:-theses}"
+      # Version (équivalent à image tag)
+      OTEL_VERSION: "${THESES_BATCH_VERSION:-latest}"
+      # Attributs OpenTelemetry
+      OTEL_RESOURCE_ATTRIBUTES: "service.name=theses-batch-anr,deployment.environment=${OTEL_ENVIRONMENT:-local},service.namespace=${OTEL_NAMESPACE:-theses},host.name=${HOSTNAME:-},service.version=${THESES_BATCH_VERSION:-latest}"
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+      OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      HOSTNAME: ${HOSTNAME:-}
 
-      THESES_BATCH_SOLR_ENABLED: ${THESES_BATCH_SOLR_ENABLED}
-      THESES_BATCH_SOLR_BASE_URL: ${THESES_BATCH_SOLR_BASE_URL}
-      THESES_BATCH_SOLR_ID_FIELD: ${THESES_BATCH_SOLR_ID_FIELD}
-      THESES_BATCH_SOLR_NNT_FIELD: ${THESES_BATCH_SOLR_NNT_FIELD}
-      THESES_BATCH_SOLR_DOI_FIELD: ${THESES_BATCH_SOLR_DOI_FIELD}
-      THESES_BATCH_SOLR_DEFENSE_DATE_FIELD: ${THESES_BATCH_SOLR_DEFENSE_DATE_FIELD}
-      THESES_BATCH_SOLR_CONNECT_TIMEOUT: ${THESES_BATCH_SOLR_CONNECT_TIMEOUT}
-      THESES_BATCH_SOLR_READ_TIMEOUT: ${THESES_BATCH_SOLR_READ_TIMEOUT}
-      THESES_BATCH_JAVA_XMX: ${THESES_BATCH_JAVA_XMX}
+      # Paramétrage de l'extraction ANR
+      THESES_BATCH_ANR_PATTERN: ${THESES_BATCH_ANR_PATTERN:-ANR-(?:\d{2}-)?[A-Za-z0-9]{4,8}(?:-\d{1,4})?|Agence nationale de la recherche|Labex|\bPIA\b}
+      THESES_BATCH_ANR_MAX_FILES: ${THESES_BATCH_ANR_MAX_FILES:-500000}
+      THESES_BATCH_ANR_OFFSET: ${THESES_BATCH_ANR_OFFSET:-0}
+      THESES_BATCH_ANR_NB_PAGES: ${THESES_BATCH_ANR_NB_PAGES:-50}
+      THESES_BATCH_ANR_CONTEXT_CHARACTERS: ${THESES_BATCH_ANR_CONTEXT_CHARACTERS:-50}
+      THESES_BATCH_ANR_CHUNK_SIZE: ${THESES_BATCH_ANR_CHUNK_SIZE:-500}
+      THESES_BATCH_ANR_EXCLUDE_KEYWORDS: ${THESES_BATCH_ANR_EXCLUDE_KEYWORDS:-annexe,resume,résumé,abstract,errata,summary,erratum,annexes,appendix,appendices,titre,couverture,couv,cover,synthese,synthèse,glossaire,illustr,diff,image,table,sommaire,garde,planche,annnexe,annex_}
+      THESES_BATCH_ANR_WRITERS_ENABLED: ${THESES_BATCH_ANR_WRITERS_ENABLED:-csv,json}
+      THESES_BATCH_ANR_WRITERS_HEADER: ${THESES_BATCH_ANR_WRITERS_HEADER:-file_path,file_name,page_number,match_value,preceding_context,following_context,analyzed_pages_number,total_pages,processing_time,nnt,doi,defense_date,error_message}
+      THESES_BATCH_ANR_JSON_PRETTY_PRINT: ${THESES_BATCH_ANR_JSON_PRETTY_PRINT:-true}
+      THESES_BATCH_ANR_FONTS_DIR: ${THESES_BATCH_ANR_FONTS_DIR:-/fonts}
+      THESES_BATCH_ANR_START_FILE: ${THESES_BATCH_ANR_START_FILE:-}
+      THESES_BATCH_ANR_SCAN_THREADS: ${THESES_BATCH_ANR_SCAN_THREADS:-32}
+      THESES_BATCH_ANR_PROCESS_THREADS: ${THESES_BATCH_ANR_PROCESS_THREADS:-16}
+      THESES_BATCH_ANR_EXCLUDE_DIRS: ${THESES_BATCH_ANR_EXCLUDE_DIRS:-*/*/temp}
+      THESES_BATCH_ANR_PROGRESS_INTERVAL: ${THESES_BATCH_ANR_PROGRESS_INTERVAL:-30s}
+      THESES_BATCH_ANR_IN_MEMORY_MAX_SIZE: ${THESES_BATCH_ANR_IN_MEMORY_MAX_SIZE:-64MB}
+      THESES_BATCH_ANR_READ_BLOCK_SIZE: ${THESES_BATCH_ANR_READ_BLOCK_SIZE:-128KB}
+
+      # Paramétrage Solr
+      THESES_BATCH_SOLR_ENABLED: ${THESES_BATCH_SOLR_ENABLED:-true}
+      THESES_BATCH_SOLR_BASE_URL: ${THESES_BATCH_SOLR_BASE_URL:-http://denim.v102.abes.fr:8080/solr1}
+      THESES_BATCH_SOLR_ID_FIELD: ${THESES_BATCH_SOLR_ID_FIELD:-id}
+      THESES_BATCH_SOLR_NNT_FIELD: ${THESES_BATCH_SOLR_NNT_FIELD:-nnt}
+      THESES_BATCH_SOLR_DOI_FIELD: ${THESES_BATCH_SOLR_DOI_FIELD:-doi}
+      THESES_BATCH_SOLR_DEFENSE_DATE_FIELD: ${THESES_BATCH_SOLR_DEFENSE_DATE_FIELD:-dateSoutenance_dt}
+      THESES_BATCH_SOLR_CONNECT_TIMEOUT: ${THESES_BATCH_SOLR_CONNECT_TIMEOUT:-5000}
+      THESES_BATCH_SOLR_READ_TIMEOUT: ${THESES_BATCH_SOLR_READ_TIMEOUT:-5000}
     labels:
-      # pour envoyer les logs dans le puits de log de l'abes
       - "co.elastic.logs/enabled=true"
       - "co.elastic.logs/processors.add_fields.target="
-      - "co.elastic.logs/processors.add_fields.fields.abes_appli=iar"
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=${ELASTIC_LOGS_APPLI:-theses}"
       - "co.elastic.logs/processors.add_fields.fields.abes_middleware=java-spring"
-      # pour que les mises à jour de cette image soient auto-déployées par wud
+      - "wud.watch=true"
+      - "wud.watch.digest=true"
+
+  # ===================================================================
+  # Conteneur 2 : Batch Datagouv (Dump des thèses soutenues vers data.gouv.fr)
+  # Reste actif en permanence avec cronie pour supervision WUD et prêt pour ./scripts/run-datagouv.sh
+  # ===================================================================
+  theses-batch-datagouv:
+    image: ${THESES_BATCH_IMAGE:-abesesr/theses-batch}:${THESES_BATCH_VERSION:-latest}
+    container_name: ${CONTAINER_NAME_DATAGOUV:-theses-batch-datagouv}
+    entrypoint: ["/docker-entrypoint-datagouv.sh"]
+    restart: ${RESTART_POLICY:-unless-stopped}
+    mem_limit: ${MEM_LIMIT_DATAGOUV:-4g}
+    memswap_limit: ${MEMSWAP_LIMIT_DATAGOUV:-4g}
+    cpus: ${CPU_LIMIT_DATAGOUV:-4}
+    volumes:
+      - type: bind
+        source: ${THESES_BATCH_DATAGOUV_OUTPUT_DIR:-volumes/output-datagouv}
+        target: /output
+      - type: bind
+        source: ${THESES_BATCH_DATA_H2_DATAGOUV:-volumes/data-datagouv}
+        target: /data
+    environment:
+      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION:-latest}
+      THESES_BATCH_JAVA_XMX: ${THESES_BATCH_JAVA_XMX_DATAGOUV:-3g}
+      THESES_BATCH_HEAP_DUMP_DIR: ${THESES_BATCH_HEAP_DUMP_DIR:-/output}
+      THESES_BATCH_JAVA_OPTS: ${THESES_BATCH_JAVA_OPTS:-}
+
+      #####################
+      ### OpenTelemetry ###
+      #####################
+      # Activation de l'agent Java (true pour l'activer)
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      # Nom du Container (équivalent à container name)
+      OTEL_SERVICE_NAME: "theses-batch-datagouv"
+      # Environnement (dev, test, prod)
+      OTEL_ENVIRONMENT: "${OTEL_ENVIRONMENT:-local}"
+      # Namespace (équivalent au nom de l'application, commun aux différents conteneurs de l'application)
+      OTEL_NAMESPACE: "${OTEL_NAMESPACE:-theses}"
+      # Version (équivalent à image tag)
+      OTEL_VERSION: "${THESES_BATCH_VERSION:-latest}"
+      # Attributs OpenTelemetry
+      OTEL_RESOURCE_ATTRIBUTES: "service.name=theses-batch-datagouv,deployment.environment=${OTEL_ENVIRONMENT:-local},service.namespace=${OTEL_NAMESPACE:-theses},host.name=${HOSTNAME:-},service.version=${THESES_BATCH_VERSION:-latest}"
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+      OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      HOSTNAME: ${HOSTNAME:-}
+
+      # Planification cronie (système Docker Abes)
+      THESES_BATCH_DATAGOUV_CRON: ${THESES_BATCH_DATAGOUV_CRON:-0 2 * * *}
+
+      # Paramétrage API theses.fr
+      THESES_API_BASE_URL: ${THESES_API_BASE_URL:-}
+      THESES_PAGE_SIZE: ${THESES_PAGE_SIZE:-1000}
+      THESES_CONNECT_TIMEOUT: ${THESES_CONNECT_TIMEOUT:-30s}
+      THESES_READ_TIMEOUT: ${THESES_READ_TIMEOUT:-60s}
+
+      # Paramétrage API data.gouv.fr
+      DATA_GOUV_API_KEY: ${DATA_GOUV_API_KEY:-}
+      DATA_GOUV_DATASET_ID: ${DATA_GOUV_DATASET_ID:-}
+      DATA_GOUV_CSV_RESOURCE_ID: ${DATA_GOUV_CSV_RESOURCE_ID:-}
+      DATA_GOUV_JSON_RESOURCE_ID: ${DATA_GOUV_JSON_RESOURCE_ID:-}
+      DATA_GOUV_JSONL_RESOURCE_ID: ${DATA_GOUV_JSONL_RESOURCE_ID:-}
+      DATA_GOUV_JSONL_GZ_RESOURCE_ID: ${DATA_GOUV_JSONL_GZ_RESOURCE_ID:-}
+      DATA_GOUV_UPLOAD_ENABLED: ${DATA_GOUV_UPLOAD_ENABLED:-false}
+      DATA_GOUV_UPLOAD_CHUNK_SIZE: ${DATA_GOUV_UPLOAD_CHUNK_SIZE:-10MB}
+
+      # Paramètres métier (Test / Forçage)
+      MODE_TEST: ${MODE_TEST:-false}
+      FORCE_RUN: ${FORCE_RUN:-false}
+    labels:
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=${ELASTIC_LOGS_APPLI:-theses}"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=java-spring"
       - "wud.watch=true"
       - "wud.watch.digest=true"
