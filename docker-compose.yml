@@ -24,6 +24,9 @@ services:
       - type: bind
         source: ${THESES_BATCH_DATA_H2}
         target: /data
+      - type: bind
+        source: ${THESES_BATCH_ANR_INPUT_FONTS_DIR}
+        target: /fonts
     environment:
       THESES_BATCH_VERSION: ${THESES_BATCH_VERSION}
 
@@ -53,8 +56,7 @@ services:
       THESES_BATCH_SOLR_DEFENSE_DATE_FIELD: ${THESES_BATCH_SOLR_DEFENSE_DATE_FIELD}
       THESES_BATCH_SOLR_CONNECT_TIMEOUT: ${THESES_BATCH_SOLR_CONNECT_TIMEOUT}
       THESES_BATCH_SOLR_READ_TIMEOUT: ${THESES_BATCH_SOLR_READ_TIMEOUT}
-  #    SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-  #    JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS}
+      THESES_BATCH_JAVA_XMX: ${THESES_BATCH_JAVA_XMX}
     labels:
       # pour envoyer les logs dans le puits de log de l'abes
       - "co.elastic.logs/enabled=true"
