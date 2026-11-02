@@ -2,8 +2,8 @@
 # ===================================================================
 # run-batch.sh : Lance un batch dans son conteneur (theses-batch-anr ou theses-batch-datagouv)
 # Usage :
-#   ./scripts/run-batch.sh anr [options spring additionnelles...]
-#   ./scripts/run-batch.sh datagouv [options spring additionnelles...]
+#   ./run-batch.sh anr [options spring additionnelles...]
+#   ./run-batch.sh datagouv [options spring additionnelles...]
 # Le code de sortie est celui du batch : 0 = succès, autre valeur = échec.
 # ===================================================================
 set -euo pipefail

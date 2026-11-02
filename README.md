@@ -28,7 +28,7 @@ Les deux conteneurs démarrent et restent actifs en continu pour la surveillance
 
 ## Déclenchement manuel
 
-Les scripts du dossier `scripts/` lancent les batchs à tout moment depuis l'hôte (via `docker exec`).
+Les scripts du dossier `scripts/` et `run-batch.sh` (à la racine) lancent les batchs à tout moment depuis l'hôte (via `docker exec`).
 Leur code de sortie est celui du batch : 0 = succès, autre valeur = échec (le conteneur continue de tourner).
 
 * **Lancer le batch ANR :**
@@ -44,7 +44,7 @@ Leur code de sortie est celui du batch : 0 = succès, autre valeur = échec (le 
 
 * **Script générique** (utilisé par les deux précédents, sans forçage pour Datagouv) :
   ```bash
-  ./scripts/run-batch.sh anr|datagouv [options spring additionnelles...]
+  ./run-batch.sh anr|datagouv [options spring additionnelles...]
   ```
 
 `THESES_API_BASE_URL` n'a pas de valeur par défaut : si elle est vide, le batch Datagouv refuse de démarrer (le batch ANR n'est pas concerné).

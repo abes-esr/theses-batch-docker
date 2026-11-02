@@ -8,4 +8,4 @@
 # ===================================================================
 set -euo pipefail
 
-exec "$(dirname "$0")/run-batch.sh" datagouv --app.datagouv.force-run=true "$@"
+exec "$(dirname "$0")/../run-batch.sh" datagouv --app.datagouv.force-run=true "$@"
