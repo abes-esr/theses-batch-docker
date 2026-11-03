@@ -13,7 +13,7 @@ usage() {
     exit 2
 }
 
-[ $# -ge 1 ] || usage
+[[ $# -ge 1 ]] || usage
 BATCH="$1"
 shift
 
@@ -25,7 +25,7 @@ esac
 
 # Terminal interactif seulement s'il y en a un : le script reste utilisable depuis un autre script
 TTY_OPTION=""
-if [ -t 0 ] && [ -t 1 ]; then
+if [[ -t 0 ]] && [[ -t 1 ]]; then
     TTY_OPTION="-it"
 fi
 
