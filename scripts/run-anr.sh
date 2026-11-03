@@ -7,4 +7,4 @@
 # ===================================================================
 set -euo pipefail
 
-exec "$(dirname "$0")/run-batch.sh" anr "$@"
+exec "$(dirname "$0")/../run-batch.sh" anr "$@"
