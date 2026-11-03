@@ -10,7 +10,7 @@ services:
   # Reste actif en permanence pour supervision WUD et prêt pour ./scripts/run-anr.sh
   # ===================================================================
   theses-batch-anr:
-    image: ${THESES_BATCH_IMAGE:-abesesr/theses}:${THESES_BATCH_VERSION:-batch-latest}
+    image: ${THESES_BATCH_IMAGE:-abesesr/theses}:${THESES_BATCH_VERSION:-latest-batch}
     container_name: ${CONTAINER_NAME_ANR:-theses-batch-anr}
     entrypoint: ["/docker-entrypoint-anr.sh"]
     restart: ${RESTART_POLICY:-unless-stopped}
@@ -31,7 +31,7 @@ services:
         source: ${THESES_BATCH_ANR_INPUT_FONTS_DIR:-volumes/fonts}
         target: /fonts
     environment:
-      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION:-batch-latest}
+      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION:-latest-batch}
       THESES_BATCH_JAVA_XMX: ${THESES_BATCH_JAVA_XMX_ANR:-14g}
       THESES_BATCH_HEAP_DUMP_DIR: ${THESES_BATCH_HEAP_DUMP_DIR:-/output}
       THESES_BATCH_JAVA_OPTS: ${THESES_BATCH_JAVA_OPTS:-}
@@ -48,9 +48,9 @@ services:
       # Namespace (équivalent au nom de l'application, commun aux différents conteneurs de l'application)
       OTEL_NAMESPACE: "${OTEL_NAMESPACE:-theses}"
       # Version (équivalent à image tag)
-      OTEL_VERSION: "${THESES_BATCH_VERSION:-batch-latest}"
+      OTEL_VERSION: "${THESES_BATCH_VERSION:-latest-batch}"
       # Attributs OpenTelemetry
-      OTEL_RESOURCE_ATTRIBUTES: "service.name=theses-batch-anr,deployment.environment=${OTEL_ENVIRONMENT:-local},service.namespace=${OTEL_NAMESPACE:-theses},host.name=${HOSTNAME:-},service.version=${THESES_BATCH_VERSION:-batch-latest}"
+      OTEL_RESOURCE_ATTRIBUTES: "service.name=theses-batch-anr,deployment.environment=${OTEL_ENVIRONMENT:-local},service.namespace=${OTEL_NAMESPACE:-theses},host.name=${HOSTNAME:-},service.version=${THESES_BATCH_VERSION:-latest-batch}"
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
@@ -100,7 +100,7 @@ services:
   # Reste actif en permanence avec cronie pour supervision WUD et prêt pour ./scripts/run-datagouv.sh
   # ===================================================================
   theses-batch-datagouv:
-    image: ${THESES_BATCH_IMAGE:-abesesr/theses}:${THESES_BATCH_VERSION:-batch-latest}
+    image: ${THESES_BATCH_IMAGE:-abesesr/theses}:${THESES_BATCH_VERSION:-latest-batch}
     container_name: ${CONTAINER_NAME_DATAGOUV:-theses-batch-datagouv}
     entrypoint: ["/docker-entrypoint-datagouv.sh"]
     restart: ${RESTART_POLICY:-unless-stopped}
@@ -115,7 +115,7 @@ services:
         source: ${THESES_BATCH_DATA_H2_DATAGOUV:-volumes/data-datagouv}
         target: /data
     environment:
-      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION:-batch-latest}
+      THESES_BATCH_VERSION: ${THESES_BATCH_VERSION:-latest-batch}
       THESES_BATCH_JAVA_XMX: ${THESES_BATCH_JAVA_XMX_DATAGOUV:-3g}
       THESES_BATCH_HEAP_DUMP_DIR: ${THESES_BATCH_HEAP_DUMP_DIR:-/output}
       THESES_BATCH_JAVA_OPTS: ${THESES_BATCH_JAVA_OPTS:-}
@@ -132,9 +132,9 @@ services:
       # Namespace (équivalent au nom de l'application, commun aux différents conteneurs de l'application)
       OTEL_NAMESPACE: "${OTEL_NAMESPACE:-theses}"
       # Version (équivalent à image tag)
-      OTEL_VERSION: "${THESES_BATCH_VERSION:-batch-latest}"
+      OTEL_VERSION: "${THESES_BATCH_VERSION:-latest-batch}"
       # Attributs OpenTelemetry
-      OTEL_RESOURCE_ATTRIBUTES: "service.name=theses-batch-datagouv,deployment.environment=${OTEL_ENVIRONMENT:-local},service.namespace=${OTEL_NAMESPACE:-theses},host.name=${HOSTNAME:-},service.version=${THESES_BATCH_VERSION:-batch-latest}"
+      OTEL_RESOURCE_ATTRIBUTES: "service.name=theses-batch-datagouv,deployment.environment=${OTEL_ENVIRONMENT:-local},service.namespace=${OTEL_NAMESPACE:-theses},host.name=${HOSTNAME:-},service.version=${THESES_BATCH_VERSION:-latest-batch}"
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
