@@ -1,4 +1,13 @@
-volumes
+volumes/data/anr/**
+!volumes/data/anr/.gitkeep
+volumes/data/datagouv/**
+!volumes/data/datagouv/.gitkeep
+volumes/output/anr/**
+!volumes/output/anr/.gitkeep
+volumes/output/datagouv/**
+!volumes/output/datagouv/.gitkeep
+volumes/fonts/**
+!volumes/fonts/.gitkeep
 
 # IDE
 .idea/
@@ -43,8 +52,8 @@ volumes
 hs_err_pid*
 replay_pid*
 
-output/
-data/
+./output/
+./data/
 .idea/
 .env
 .env-prod
